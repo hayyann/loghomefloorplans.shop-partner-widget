@@ -8,27 +8,19 @@
   id="fp-iframe"
   src="https://hayyann.github.io/loghomefloorplans.shop-partner-widget/iframe-widget/iframe-embed.html"
   width="100%"
-  height="800"
   frameborder="0"
-  scrolling="no"
-  style="display:block; width:100%; border:none; overflow:hidden;"
+  scrolling="auto"
+  style="display:block; width:100%; height:100vh; border:none;"
   title="Sierra Log &amp; Timber Floor Plans"
 ></iframe>
 
 <script>
 (function () {
-  var iframe      = document.getElementById('fp-iframe');
-  var naturalH    = '800px';
-  var isExpanded  = false;
+  var iframe     = document.getElementById('fp-iframe');
+  var isExpanded = false;
 
   window.addEventListener('message', function (e) {
     if (!e.data) return;
-
-    // Auto-height
-    if (e.data.type === 'fp-resize' && typeof e.data.height === 'number') {
-      naturalH = e.data.height + 'px';
-      if (!isExpanded) iframe.style.height = naturalH;
-    }
 
     // Expand iframe to full viewport so the in-widget lightbox centers correctly
     if (e.data.type === 'fp-lightbox-expand') {
@@ -46,15 +38,14 @@
       document.body.style.overflow = 'hidden';
     }
 
-    // Restore iframe to normal flow
+    // Restore iframe to screen-height view
     if (e.data.type === 'fp-lightbox-shrink') {
       isExpanded = false;
       iframe.style.cssText = [
         'display:block',
         'width:100%',
-        'border:none',
-        'overflow:hidden',
-        'height:' + naturalH
+        'height:100vh',
+        'border:none'
       ].join(';');
       document.body.style.overflow = '';
     }
