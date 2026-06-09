@@ -37,6 +37,10 @@
 .fp-sort { height:40px; padding:0 10px; border:1px solid var(--fp-border); border-radius:6px; font-family:var(--fp-font); font-size:14px; color:var(--fp-text); background:var(--fp-bg); cursor:pointer; outline:none; }
 .fp-sort:focus { border-color:var(--fp-accent); }
 .fp-count { font-size:13px; color:var(--fp-muted); white-space:nowrap; }
+.fp-view-toggle { height:40px; padding:0 14px; border:1px solid var(--fp-border); border-radius:6px; background:var(--fp-chip-bg); font-family:var(--fp-font); font-size:13px; color:var(--fp-text); cursor:pointer; white-space:nowrap; transition:background .12s, border-color .12s, color .12s; }
+.fp-view-toggle:hover { border-color:var(--fp-accent); color:var(--fp-accent); }
+.fp-view-toggle--on { background:var(--fp-accent); border-color:var(--fp-accent); color:#fff; }
+.fp-view-toggle--on:hover { opacity:.88; color:#fff; }
 
 /* Filter groups */
 .fp-filter-group { margin-bottom:10px; }
@@ -96,6 +100,7 @@
   const ENDPOINT        = `${SHOP_URL}/api/${API_VERSION}/graphql.json`;
 
   let allProducts = [];
+  let viewMode = 'photo'; // 'photo' | 'floorplan'
   let filterState = { size:'all', style:'any', bedrooms:'any', bathrooms:'any', stories:'any', garage:'any', basement:'any', sort:'default', q:'' };
 
   function buildQuery(cursor) {
@@ -117,7 +122,8 @@
                 { namespace: "custom", key: "basement" }
                 { namespace: "custom", key: "home_style" }
                 { namespace: "custom", key: "project_name" }
-              ]) { namespace key value }
+                { namespace: "custom", key: "main_floor_plan" }
+              ]) { namespace key value reference { ... on MediaImage { image { url(transform: { maxWidth: 600 }) altText } } } }
             }
           }
           pageInfo { hasNextPage endCursor }
@@ -151,8 +157,10 @@
   }
 
   function normalizeProduct(node) {
-    const mf = {};
-    (node.metafields || []).forEach(function (m) { if (m) mf[m.key] = m.value; });
+    const mf = {}, mfRef = {};
+    (node.metafields || []).forEach(function (m) { if (m) { mf[m.key] = m.value; mfRef[m.key] = m.reference; } });
+    const fpRef = mfRef.main_floor_plan;
+    const fpImage = fpRef && fpRef.image ? fpRef.image.url : '';
 
     let style = mf.home_style || '';
     if (style.startsWith('[')) { try { style = JSON.parse(style); } catch (e) { style = [style]; } }
@@ -172,6 +180,7 @@
     return { id:node.id, title:node.title, handle:node.handle, tags:tags,
              image:node.featuredImage ? node.featuredImage.url : '',
              imageAlt:node.featuredImage ? (node.featuredImage.altText || node.title) : node.title,
+             fpImage:fpImage,
              price:price, sqft:sqft, beds:beds, baths:baths, stories:stories,
              garage:garage, basement:basement, style:style, isNew:isNew, isADU:isADU,
              projectName:mf.project_name || '' };
@@ -225,8 +234,9 @@
     if (p.beds)  specs.push(p.beds + ' bd');
     if (p.baths) specs.push(fmtBaths(p.baths) + ' ba');
     if (p.sqft)  specs.push(fmtSqft(p.sqft));
-    var imgHtml = p.image
-      ? '<img class="fp-card__img" src="' + p.image + '" alt="' + esc(p.imageAlt) + '" loading="lazy">'
+    var activeSrc = (viewMode === 'floorplan' && p.fpImage) ? p.fpImage : p.image;
+    var imgHtml = activeSrc
+      ? '<img class="fp-card__img" src="' + activeSrc + '" alt="' + esc(p.imageAlt) + '" loading="lazy">'
       : '<div class="fp-card__img-placeholder"></div>';
     return '<a class="fp-card" href="' + SHOP_URL + '/products/' + p.handle + '" target="_blank" rel="noopener">'
       + '<div class="fp-card__media">' + imgHtml
@@ -264,6 +274,9 @@
           + '<option value="price-desc">Price: High to low</option>'
         + '</select>'
         + '<span class="fp-count" id="fp-count"></span>'
+        + '<button class="fp-view-toggle" id="fp-view-toggle">'
+            + (viewMode === 'floorplan' ? '&#128247; Photo View' : '&#9639; Floor Plan View')
+          + '</button>'
       + '</div>'
       + chipGroup('Size', 'size', [['all','All'],['adu','ADU'],['u1000','Under 1,000 sf'],['1000-1500','1,000–1,500 sf'],['1500-2500','1,500–2,500 sf'],['a2500','2,500+ sf']])
       + chipGroup('Style', 'style', [['any','Any'],['Mountain','Mountain'],['ADU','ADU'],['Barn','Barn'],['Barndominium','Barndominium'],['Ranch','Ranch'],['Modern','Modern'],['Garage','Garage'],['Shade Structures','Shade Structures']])
@@ -303,6 +316,16 @@
     }
     var sortEl = document.getElementById('fp-sort');
     if (sortEl) sortEl.addEventListener('change', function () { filterState.sort = sortEl.value; update(); });
+
+    var toggleBtn = document.getElementById('fp-view-toggle');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function () {
+        viewMode = viewMode === 'photo' ? 'floorplan' : 'photo';
+        toggleBtn.innerHTML = viewMode === 'floorplan' ? '&#128247; Photo View' : '&#9639; Floor Plan View';
+        toggleBtn.classList.toggle('fp-view-toggle--on', viewMode === 'floorplan');
+        update();
+      });
+    }
   }
 
   function clearFilters() {

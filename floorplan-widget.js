@@ -326,6 +326,9 @@
           + '<option value="price-desc">Price: High to low</option>'
         + '</select>'
         + '<span class="fp-count" id="fp-count"></span>'
+        + '<button class="fp-view-toggle" id="fp-view-toggle">'
+            + (viewMode === 'floorplan' ? '&#128247; Photo View' : '&#9639; Floor Plan View')
+          + '</button>'
       + '</div>'
 
       // Size chips
@@ -404,6 +407,17 @@
     if (sortEl) {
       sortEl.addEventListener('change', function () {
         filterState.sort = sortEl.value;
+        update();
+      });
+    }
+
+    // Floor plan view toggle
+    var toggleBtn = document.getElementById('fp-view-toggle');
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function () {
+        viewMode = viewMode === 'photo' ? 'floorplan' : 'photo';
+        toggleBtn.innerHTML = viewMode === 'floorplan' ? '&#128247; Photo View' : '&#9639; Floor Plan View';
+        toggleBtn.classList.toggle('fp-view-toggle--on', viewMode === 'floorplan');
         update();
       });
     }
