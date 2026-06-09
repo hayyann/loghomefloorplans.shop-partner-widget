@@ -210,6 +210,12 @@
   }
 
   // ─── RENDER HELPERS ────────────────────────────────────────────────────────
+  function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function (word) {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    });
+  }
+
   function fmtBaths(n) {
     return n % 1 === 0 ? String(n) : n.toFixed(1);
   }
@@ -240,7 +246,7 @@
         + (p.isNew    ? '<span class="fp-card__new">New</span>' : '')
       + '</div>'
       + '<div class="fp-card__body">'
-        + '<p class="fp-card__title">' + esc(p.title) + '</p>'
+        + '<p class="fp-card__title">' + esc(toTitleCase(p.title)) + '</p>'
         + (specs.length ? '<p class="fp-card__specs">' + specs.join(' &middot; ') + '</p>' : '')
         + (fmtPrice(p.price) ? '<p class="fp-card__price">' + esc(fmtPrice(p.price)) + '</p>' : '')
       + '</div>'
