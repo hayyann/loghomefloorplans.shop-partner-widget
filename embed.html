@@ -1,37 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Allows this page to be embedded in an iframe from any domain.
-       GitHub Pages cannot set X-Frame-Options server-side, so this CSP
-       meta tag is used instead — sufficient for all modern browsers. -->
-  <meta http-equiv="Content-Security-Policy" content="frame-ancestors *;">
-  <title>Sierra Log &amp; Timber — Floor Plans</title>
-  <link rel="stylesheet" href="../floorplan-widget.css">
-  <style>
-    html, body { margin: 0; padding: 0; background: transparent; }
-    /* Logo styles (not in the external CSS) */
-    .fp-header { padding: 24px 0 8px; text-align: center; }
-    .fp-logo   { display: inline-block; max-height: 72px; width: auto; }
-  </style>
-</head>
-<body>
+<!-- ═══════════════════════════════════════════════════════════════════════
+     Sierra Log & Timber — Floor Plan Widget
+     Drop this snippet into any WordPress page, Elementor Custom HTML block,
+     or theme template. Update the two src/href paths to wherever you
+     uploaded floorplan-widget.css and floorplan-widget.js.
+═══════════════════════════════════════════════════════════════════════════ -->
 
-  <div id="floorplan-widget">
-    <div class="fp-header">
-      <a href="https://loghomefloorplans.shop" target="_blank" rel="noopener">
-        <img class="fp-logo"
-             src="https://cdn.shopify.com/s/files/1/0987/2415/1660/files/Horizontal_Logo_10.png?v=1780363093"
-             alt="Sierra Log &amp; Timber"
-             loading="eager">
-      </a>
-    </div>
-    <div id="fp-filters"></div>
-    <div id="fp-grid"></div>
-  </div>
+<!-- 1. Widget stylesheet — update path if needed -->
+<link rel="stylesheet" href="floorplan-widget.css">
 
-  <script src="../floorplan-widget.js"></script>
-  <script src="iframe-embed.js"></script>
-</body>
-</html>
+<!-- 2. Widget root -->
+<div id="floorplan-widget">
+  <!-- Filter bar renders here -->
+  <div id="fp-filters"></div>
+
+  <!-- Product grid renders here -->
+  <div id="fp-grid"></div>
+</div>
+
+<!-- 3. Widget script — must come after the div above -->
+<script src="floorplan-widget.js"></script>
+
+<!-- ───────────────────────────────────────────────────────────────────────
+     OPTIONAL: Brand color customization.
+     Paste this <style> block anywhere on the page (or into your theme CSS)
+     and adjust the values to match your site.
+─────────────────────────────────────────────────────────────────────────── -->
+<!--
+<style>
+  #floorplan-widget {
+    --fp-accent:      #2D4A2D;   /* active chip / card price / spinner color */
+    --fp-card-radius: 8px;       /* card corner rounding */
+    --fp-font:        inherit;   /* inherits your site's body font by default */
+  }
+</style>
+-->

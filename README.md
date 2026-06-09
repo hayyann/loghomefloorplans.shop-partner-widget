@@ -1,67 +1,97 @@
-# Sierra Log & Timber — iFrame Embed Widget
+# Sierra Log & Timber — Floor Plan Widget
 
-Embed a live, filterable floor plan browser on any WordPress site with a single paste. No plugins, no file uploads, no accounts needed.
-
-All future design and product updates happen at the source — **you never need to touch your snippet again**.
+Embed a live, filterable floor plan browser on any WordPress site. The widget connects directly to the Sierra Log & Timber Shopify store and requires no plugin.
 
 ---
 
-## How it works
+## What it does
 
-Your WordPress page hosts a small `<iframe>` that points to the widget hosted on GitHub Pages. The widget auto-resizes to fit its content so there is no scrollbar inside the frame.
+- Displays all Sierra Log & Timber floor plans in a responsive grid
+- Filters by size, style, bedrooms, bathrooms, stories, garage, and basement
+- Search by name or keyword
+- Sort by name, size, or price
+- Each plan card links to the full product page on **loghomefloorplans.shop**
+- Checkout happens on loghomefloorplans.shop — nothing to configure on your end
 
 ---
 
-## Step 1 — Paste the snippet
+## Step 1 — Add the token
 
-Open `partner-snippet.html` from this folder and copy everything inside it.
+Open `floorplan-widget.js` in any text editor. Near the top you will see:
+
+```js
+const STOREFRONT_TOKEN = 'YOUR_PUBLIC_STOREFRONT_TOKEN';
+```
+
+Replace `YOUR_PUBLIC_STOREFRONT_TOKEN` with the public Storefront API token provided by Sierra Log & Timber. Save the file.
+
+---
+
+## Step 2 — Upload the two files to WordPress
+
+You need to make `floorplan-widget.js` and `floorplan-widget.css` publicly accessible on your site.
+
+**Option A — Upload via WordPress Media Library**
+
+1. Go to **WordPress Admin → Media → Add New**
+2. Upload `floorplan-widget.js` and `floorplan-widget.css`
+3. Click each file and copy its **File URL** (e.g. `https://yoursite.com/wp-content/uploads/2024/06/floorplan-widget.js`)
+4. Keep both URLs handy — you will paste them in Step 3
+
+**Option B — Upload via FTP / File Manager**
+
+Upload both files to your theme folder or a `/widgets/` subfolder inside `wp-content/uploads/`. Note the full URL path to each file.
+
+---
+
+## Step 3 — Paste the snippet into your page
+
+Open `embed.html` from this folder in a text editor, or copy the block below.
+
+Update the two file paths with the URLs from Step 2, then paste the whole thing into your page.
 
 **In Elementor:**
-1. Edit your page
-2. Drag a **Custom HTML** widget to the section where you want the floor plans
-3. Paste the snippet into the HTML field
-4. Click **Update** / **Publish**
+1. Edit the page → drag a **Custom HTML** widget to the section where you want the floor plans
+2. Paste the snippet into the HTML field
+3. Update the `href` on the `<link>` tag and the `src` on the `<script>` tag
+4. Save and publish
 
 **In the WordPress Block Editor (Gutenberg):**
 1. Add a **Custom HTML** block
 2. Paste the snippet
-3. Click **Publish** or **Update**
+3. Update the two paths
+4. Publish
 
-**In any other page builder:**
-Look for a "Custom HTML", "HTML Block", or "Embed Code" element and paste the snippet there.
-
----
-
-## Step 2 — Adjust the initial height (optional)
-
-The widget auto-resizes once it loads. The `height="800"` attribute is only the placeholder height shown while the floor plans are fetching. If you want a taller or shorter placeholder, change that number:
+**Snippet to paste:**
 
 ```html
-<iframe ... height="1000" ...>
+<link rel="stylesheet" href="https://yoursite.com/path/to/floorplan-widget.css">
+
+<div id="floorplan-widget">
+  <div id="fp-filters"></div>
+  <div id="fp-grid"></div>
+</div>
+
+<script src="https://yoursite.com/path/to/floorplan-widget.js"></script>
 ```
 
 ---
 
-## Step 3 — Customize accent color (optional)
+## Step 4 — Customize brand colors (optional)
 
-The widget inherits a dark green accent by default (`#2D4A2D`). To match your site's brand, add this CSS to your WordPress theme's **Additional CSS** (Appearance → Customize → Additional CSS):
+Add a `<style>` block anywhere on the same page (or in your theme's CSS) to override the default colors:
 
-```css
-#fp-iframe-host #floorplan-widget {
-  --fp-accent: #your-brand-color;
-}
+```html
+<style>
+  #floorplan-widget {
+    --fp-accent:      #2D4A2D;   /* chip highlight, price color, spinner */
+    --fp-card-radius: 8px;       /* card corner rounding */
+    --fp-font:        inherit;   /* defaults to your site's body font */
+  }
+</style>
 ```
 
-> **Note:** Because the widget runs inside an iframe, standard CSS from your site does not reach it. The accent color override above requires the widget host page to expose a CSS variable API — contact Sierra Log & Timber if you need a custom-branded build.
-
----
-
-## Notes
-
-- **Checkout happens on loghomefloorplans.shop** — clicking any floor plan opens the product page in a new tab on the Sierra Log & Timber store
-- **No maintenance required** — all product updates, new plans, and design improvements are deployed at the source; your snippet stays the same forever
-- **GitHub Pages hosting** — the widget is served from GitHub Pages which does not allow setting `X-Frame-Options` headers server-side; a `Content-Security-Policy` meta tag (`frame-ancestors *`) is used instead, which is fully supported in all modern browsers (Chrome, Firefox, Safari, Edge)
-- **Auto-height** — the iframe listens for `postMessage` events from the widget and adjusts its height automatically as filters expand/collapse and products load; no fixed height scrollbars
+Change `#2D4A2D` to any hex color that matches your brand.
 
 ---
 
@@ -69,10 +99,19 @@ The widget inherits a dark green accent by default (`#2D4A2D`). To match your si
 
 | Symptom | Fix |
 |---|---|
-| Iframe shows but content is blank | Wait 5–10 seconds for products to load from the Shopify API |
-| Height is wrong / content is clipped | Check that the inline `<script>` was pasted along with the `<iframe>` tag |
-| Iframe has a scrollbar | Make sure `scrolling="no"` is present on the iframe tag |
-| Page builder stripped the script tag | Use the Custom HTML widget type — rich text or visual editors strip scripts |
+| "Unable to load floor plans" error | Check that the Storefront token in `floorplan-widget.js` is correct and the file is saved |
+| Widget shows but no images | Normal if products have no images — the widget shows a neutral placeholder |
+| CSS conflicts with your theme | The widget is scoped to `#floorplan-widget` — if conflicts appear, increase specificity on your theme's rules |
+| No plans after filtering | Click **Clear filters** or reload — all filters reset to defaults |
+
+---
+
+## Notes
+
+- **Checkout happens on loghomefloorplans.shop** — let your visitors know they will be redirected to finalize any purchase
+- The widget fetches live product data directly from Shopify — no caching layer, always up to date
+- The public Storefront token is safe to include in client-side code by design (it is read-only)
+- Do not share the **private** admin token — only the public Storefront token goes in this widget
 
 ---
 
