@@ -326,9 +326,6 @@
           + '<option value="price-desc">Price: High to low</option>'
         + '</select>'
         + '<span class="fp-count" id="fp-count"></span>'
-        + '<button class="fp-view-toggle" id="fp-view-toggle">'
-            + (viewMode === 'floorplan' ? '&#128247; Photo View' : '&#9639; Floor Plan View')
-          + '</button>'
       + '</div>'
 
       // Size chips
@@ -361,6 +358,11 @@
         + chipGroup('Stories', 'stories', [['any','Any'],['1','1'],['1.5','1.5'],['2','2']])
         + chipGroup('Garage', 'garage', [['any','Any'],['yes','Yes'],['no','No']])
         + chipGroup('Basement', 'basement', [['any','Any'],['yes','Yes'],['no','No']])
+      + '</div>'
+      + '<div class="fp-view-row">'
+        + '<button class="fp-view-toggle' + (viewMode === 'floorplan' ? ' fp-view-toggle--on' : '') + '" id="fp-view-toggle">'
+            + (viewMode === 'floorplan' ? '&#128247; Photo View' : '&#9639; Floor Plan View')
+          + '</button>'
       + '</div>';
 
     // Set sort value

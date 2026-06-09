@@ -84,6 +84,8 @@
   white-space: nowrap;
 }
 
+.fp-view-row { padding: 10px 0 4px; }
+
 .fp-view-toggle {
   height:        40px;
   padding:       0 14px;

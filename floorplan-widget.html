@@ -37,6 +37,7 @@
 .fp-sort { height:40px; padding:0 10px; border:1px solid var(--fp-border); border-radius:6px; font-family:var(--fp-font); font-size:14px; color:var(--fp-text); background:var(--fp-bg); cursor:pointer; outline:none; }
 .fp-sort:focus { border-color:var(--fp-accent); }
 .fp-count { font-size:13px; color:var(--fp-muted); white-space:nowrap; }
+.fp-view-row { padding:10px 0 4px; }
 .fp-view-toggle { height:40px; padding:0 14px; border:1px solid var(--fp-border); border-radius:6px; background:var(--fp-chip-bg); font-family:var(--fp-font); font-size:13px; color:var(--fp-text); cursor:pointer; white-space:nowrap; transition:background .12s, border-color .12s, color .12s; }
 .fp-view-toggle:hover { border-color:var(--fp-accent); color:var(--fp-accent); }
 .fp-view-toggle--on { background:var(--fp-accent); border-color:var(--fp-accent); color:#fff; }
@@ -274,9 +275,6 @@
           + '<option value="price-desc">Price: High to low</option>'
         + '</select>'
         + '<span class="fp-count" id="fp-count"></span>'
-        + '<button class="fp-view-toggle" id="fp-view-toggle">'
-            + (viewMode === 'floorplan' ? '&#128247; Photo View' : '&#9639; Floor Plan View')
-          + '</button>'
       + '</div>'
       + chipGroup('Size', 'size', [['all','All'],['adu','ADU'],['u1000','Under 1,000 sf'],['1000-1500','1,000–1,500 sf'],['1500-2500','1,500–2,500 sf'],['a2500','2,500+ sf']])
       + chipGroup('Style', 'style', [['any','Any'],['Mountain','Mountain'],['ADU','ADU'],['Barn','Barn'],['Barndominium','Barndominium'],['Ranch','Ranch'],['Modern','Modern'],['Garage','Garage'],['Shade Structures','Shade Structures']])
@@ -286,6 +284,11 @@
         + chipGroup('Stories',  'stories',   [['any','Any'],['1','1'],['1.5','1.5'],['2','2']])
         + chipGroup('Garage',   'garage',    [['any','Any'],['yes','Yes'],['no','No']])
         + chipGroup('Basement', 'basement',  [['any','Any'],['yes','Yes'],['no','No']])
+      + '</div>'
+      + '<div class="fp-view-row">'
+        + '<button class="fp-view-toggle' + (viewMode === 'floorplan' ? ' fp-view-toggle--on' : '') + '" id="fp-view-toggle">'
+            + (viewMode === 'floorplan' ? '&#128247; Photo View' : '&#9639; Floor Plan View')
+          + '</button>'
       + '</div>';
     var sortEl = document.getElementById('fp-sort');
     if (sortEl) sortEl.value = filterState.sort;
