@@ -249,16 +249,22 @@
     if (p.baths) specs.push(fmtBaths(p.baths) + ' ba');
     if (p.sqft)  specs.push(fmtSqft(p.sqft));
 
-    var activeSrc = (viewMode === 'floorplan' && p.fpImage) ? p.fpImage : p.image;
+    var isFPMode = viewMode === 'floorplan' && p.fpImage;
+    var activeSrc = isFPMode ? p.fpImage : p.image;
+    var imgClass = 'fp-card__img' + (isFPMode ? ' fp-card__img--contain' : '');
     var imgHtml = activeSrc
-      ? '<img class="fp-card__img" src="' + activeSrc + '" alt="' + escAttr(p.imageAlt) + '" loading="lazy">'
+      ? '<img class="' + imgClass + '" src="' + activeSrc + '" alt="' + escAttr(p.imageAlt) + '" loading="lazy">'
       : '<div class="fp-card__img-placeholder"></div>';
+    var fullLink = isFPMode
+      ? '<a class="fp-card__full-link" href="' + activeSrc + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">See full picture</a>'
+      : '';
 
     return '<a class="fp-card" href="' + SHOP_URL + '/products/' + p.handle + '" target="_blank" rel="noopener">'
       + '<div class="fp-card__media">'
         + imgHtml
         + (styleLabel ? '<span class="fp-card__badge">' + esc(styleLabel) + '</span>' : '')
         + (p.isNew    ? '<span class="fp-card__new">New</span>' : '')
+        + fullLink
       + '</div>'
       + '<div class="fp-card__body">'
         + '<p class="fp-card__title">' + esc(toTitleCase(p.title)) + '</p>'
