@@ -209,6 +209,9 @@
     return result;
   }
 
+  function toTitleCase(str) {
+    return str.replace(/\w\S*/g, function (w) { return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase(); });
+  }
   function fmtBaths(n) { return n % 1 === 0 ? String(n) : n.toFixed(1); }
   function fmtSqft(n)  { return n > 0 ? n.toLocaleString() + ' sf' : ''; }
   function fmtPrice(n) { return n > 0 ? '$' + n.toLocaleString() : ''; }
@@ -231,7 +234,7 @@
         + (p.isNew    ? '<span class="fp-card__new">New</span>' : '')
       + '</div>'
       + '<div class="fp-card__body">'
-        + '<p class="fp-card__title">' + esc(p.title) + '</p>'
+        + '<p class="fp-card__title">' + esc(toTitleCase(p.title)) + '</p>'
         + (specs.length ? '<p class="fp-card__specs">' + specs.join(' &middot; ') + '</p>' : '')
         + (fmtPrice(p.price) ? '<p class="fp-card__price">' + esc(fmtPrice(p.price)) + '</p>' : '')
       + '</div></a>';
