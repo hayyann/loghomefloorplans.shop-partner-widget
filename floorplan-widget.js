@@ -483,6 +483,11 @@
   }
 
   function openLightbox(src) {
+    if (window.parent !== window) {
+      // Inside iframe — delegate to parent page so position:fixed works correctly
+      window.parent.postMessage({ type: 'fp-lightbox-open', src: src }, '*');
+      return;
+    }
     var lb  = document.getElementById('fp-lightbox');
     var img = document.getElementById('fp-lb-img');
     if (!lb || !img) return;
@@ -493,6 +498,10 @@
   }
 
   function closeLightbox() {
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'fp-lightbox-close' }, '*');
+      return;
+    }
     var lb = document.getElementById('fp-lightbox');
     if (!lb) return;
     lb.classList.remove('fp-lightbox--open');
