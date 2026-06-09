@@ -1,0 +1,36 @@
+<!-- ═══════════════════════════════════════════════════════════════════════
+     Sierra Log & Timber — Floor Plan Widget
+     Drop this snippet into any WordPress page, Elementor Custom HTML block,
+     or theme template. Update the two src/href paths to wherever you
+     uploaded floorplan-widget.css and floorplan-widget.js.
+═══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- 1. Widget stylesheet — update path if needed -->
+<link rel="stylesheet" href="floorplan-widget.css">
+
+<!-- 2. Widget root -->
+<div id="floorplan-widget">
+  <!-- Filter bar renders here -->
+  <div id="fp-filters"></div>
+
+  <!-- Product grid renders here -->
+  <div id="fp-grid"></div>
+</div>
+
+<!-- 3. Widget script — must come after the div above -->
+<script src="floorplan-widget.js"></script>
+
+<!-- ───────────────────────────────────────────────────────────────────────
+     OPTIONAL: Brand color customization.
+     Paste this <style> block anywhere on the page (or into your theme CSS)
+     and adjust the values to match your site.
+─────────────────────────────────────────────────────────────────────────── -->
+<!--
+<style>
+  #floorplan-widget {
+    --fp-accent:      #2D4A2D;   /* active chip / card price / spinner color */
+    --fp-card-radius: 8px;       /* card corner rounding */
+    --fp-font:        inherit;   /* inherits your site's body font by default */
+  }
+</style>
+-->
