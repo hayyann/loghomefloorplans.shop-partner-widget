@@ -185,8 +185,8 @@
   background:      var(--fp-bg);
   border:          1px solid var(--fp-border);
   box-shadow:      var(--fp-shadow);
-  text-decoration: none;
   color:           inherit;
+  cursor:          pointer;
   transition:      transform .15s, box-shadow .15s;
 }
 .fp-card:hover {

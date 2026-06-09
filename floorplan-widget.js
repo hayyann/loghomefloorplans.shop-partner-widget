@@ -259,7 +259,7 @@
       ? '<button class="fp-card__full-link" type="button" data-fp-open="' + activeSrc + '">See full picture</button>'
       : '';
 
-    return '<a class="fp-card" href="' + SHOP_URL + '/products/' + p.handle + '" target="_blank" rel="noopener">'
+    return '<div class="fp-card" data-card-href="' + SHOP_URL + '/products/' + p.handle + '">'
       + '<div class="fp-card__media">'
         + imgHtml
         + (styleLabel ? '<span class="fp-card__badge">' + esc(styleLabel) + '</span>' : '')
@@ -271,7 +271,7 @@
         + (specs.length ? '<p class="fp-card__specs">' + specs.join(' &middot; ') + '</p>' : '')
         + (fmtPrice(p.price) ? '<p class="fp-card__price">' + esc(fmtPrice(p.price)) + '</p>' : '')
       + '</div>'
-    + '</a>';
+    + '</div>';
   }
 
   function esc(str) {
@@ -301,13 +301,16 @@
     grid.innerHTML = products.map(renderCard).join('');
     if (count) count.textContent = products.length + ' plan' + (products.length === 1 ? '' : 's');
 
-    // Attach direct listeners — delegation fails here because the button is inside
-    // an <a target="_blank"> and the browser follows the link before bubbling finishes
     grid.querySelectorAll('[data-fp-open]').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        e.preventDefault();
         openLightbox(btn.dataset.fpOpen);
+      });
+    });
+
+    grid.querySelectorAll('[data-card-href]').forEach(function (card) {
+      card.addEventListener('click', function () {
+        window.open(card.dataset.cardHref, '_blank', 'noopener');
       });
     });
   }

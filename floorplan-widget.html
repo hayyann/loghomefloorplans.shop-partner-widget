@@ -66,7 +66,7 @@
 @media (max-width:520px) { #fp-grid { grid-template-columns:1fr; gap:14px; } }
 
 /* Card */
-.fp-card { display:flex; flex-direction:column; border-radius:var(--fp-card-radius); overflow:hidden; background:var(--fp-bg); border:1px solid var(--fp-border); box-shadow:var(--fp-shadow); text-decoration:none; color:inherit; transition:transform .15s, box-shadow .15s; }
+.fp-card { display:flex; flex-direction:column; border-radius:var(--fp-card-radius); overflow:hidden; background:var(--fp-bg); border:1px solid var(--fp-border); box-shadow:var(--fp-shadow); color:inherit; cursor:pointer; transition:transform .15s, box-shadow .15s; }
 .fp-card:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,0,0,.1), 0 12px 32px rgba(0,0,0,.08); }
 .fp-card__media { position:relative; width:100%; padding-top:66%; overflow:hidden; background:#f0ede8; flex-shrink:0; }
 .fp-card__img, .fp-card__img-placeholder { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; transition:transform .3s ease; }
@@ -254,7 +254,7 @@
     var fullLink = isFPMode
       ? '<button class="fp-card__full-link" type="button" data-fp-open="' + activeSrc + '">See full picture</button>'
       : '';
-    return '<a class="fp-card" href="' + SHOP_URL + '/products/' + p.handle + '" target="_blank" rel="noopener">'
+    return '<div class="fp-card" data-card-href="' + SHOP_URL + '/products/' + p.handle + '">'
       + '<div class="fp-card__media">' + imgHtml
         + (styleLabel ? '<span class="fp-card__badge">' + esc(styleLabel) + '</span>' : '')
         + (p.isNew    ? '<span class="fp-card__new">New</span>' : '')
@@ -264,7 +264,7 @@
         + '<p class="fp-card__title">' + esc(toTitleCase(p.title)) + '</p>'
         + (specs.length ? '<p class="fp-card__specs">' + specs.join(' &middot; ') + '</p>' : '')
         + (fmtPrice(p.price) ? '<p class="fp-card__price">' + esc(fmtPrice(p.price)) + '</p>' : '')
-      + '</div></a>';
+      + '</div></div>';
   }
 
   function chipGroup(label, filterId, options) {
@@ -366,11 +366,17 @@
     }
     grid.innerHTML = products.map(renderCard).join('');
     if (count) count.textContent = products.length + ' plan' + (products.length === 1 ? '' : 's');
+
     grid.querySelectorAll('[data-fp-open]').forEach(function (btn) {
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        e.preventDefault();
         openLightbox(btn.dataset.fpOpen);
+      });
+    });
+
+    grid.querySelectorAll('[data-card-href]').forEach(function (card) {
+      card.addEventListener('click', function () {
+        window.open(card.dataset.cardHref, '_blank', 'noopener');
       });
     });
   }
