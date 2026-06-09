@@ -406,26 +406,24 @@
   }
 
   function openLightbox(src) {
-    if (window.parent !== window) {
-      window.parent.postMessage({ type: 'fp-lightbox-open', src: src }, '*');
-      return;
-    }
     var lb = document.getElementById('fp-lightbox'), img = document.getElementById('fp-lb-img');
     if (!lb || !img) return;
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'fp-lightbox-expand' }, '*');
+    }
     img.src = src;
     lb.classList.add('fp-lightbox--open'); lb.setAttribute('aria-hidden','false');
     document.body.style.overflow = 'hidden';
   }
 
   function closeLightbox() {
-    if (window.parent !== window) {
-      window.parent.postMessage({ type: 'fp-lightbox-close' }, '*');
-      return;
-    }
     var lb = document.getElementById('fp-lightbox');
     if (!lb) return;
     lb.classList.remove('fp-lightbox--open'); lb.setAttribute('aria-hidden','true');
     document.body.style.overflow = '';
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: 'fp-lightbox-shrink' }, '*');
+    }
   }
 
   async function init() {
