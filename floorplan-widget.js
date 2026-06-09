@@ -256,7 +256,7 @@
       ? '<img class="' + imgClass + '" src="' + activeSrc + '" alt="' + escAttr(p.imageAlt) + '" loading="lazy">'
       : '<div class="fp-card__img-placeholder"></div>';
     var fullLink = isFPMode
-      ? '<a class="fp-card__full-link" href="' + activeSrc + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">See full picture</a>'
+      ? '<button class="fp-card__full-link" type="button" data-fp-open="' + activeSrc + '">See full picture</button>'
       : '';
 
     return '<a class="fp-card" href="' + SHOP_URL + '/products/' + p.handle + '" target="_blank" rel="noopener">'
@@ -383,8 +383,17 @@
     var root = document.getElementById('floorplan-widget');
     if (!root) return;
 
-    // Chip clicks — delegate from root to avoid re-binding on re-render
+    // Chip clicks + lightbox open — delegated from root
     root.addEventListener('click', function (e) {
+      // Lightbox trigger
+      var fpBtn = e.target.closest('[data-fp-open]');
+      if (fpBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        openLightbox(fpBtn.dataset.fpOpen);
+        return;
+      }
+      // Chip filter
       var btn = e.target.closest('.fp-chip');
       if (!btn) return;
       var filter = btn.dataset.filter;
@@ -454,11 +463,49 @@
     renderGrid(applyFilters(allProducts));
   }
 
+  // ─── LIGHTBOX ──────────────────────────────────────────────────────────────
+  function initLightbox() {
+    var lb = document.createElement('div');
+    lb.id        = 'fp-lightbox';
+    lb.className = 'fp-lightbox';
+    lb.setAttribute('aria-hidden', 'true');
+    lb.innerHTML =
+      '<div class="fp-lightbox__backdrop"></div>'
+      + '<div class="fp-lightbox__frame">'
+        + '<img class="fp-lightbox__img" id="fp-lb-img" src="" alt="Floor plan">'
+      + '</div>'
+      + '<button class="fp-lightbox__close" aria-label="Close">&times;</button>';
+    document.body.appendChild(lb);
+
+    lb.querySelector('.fp-lightbox__backdrop').addEventListener('click', closeLightbox);
+    lb.querySelector('.fp-lightbox__close').addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLightbox(); });
+  }
+
+  function openLightbox(src) {
+    var lb  = document.getElementById('fp-lightbox');
+    var img = document.getElementById('fp-lb-img');
+    if (!lb || !img) return;
+    img.src = src;
+    lb.classList.add('fp-lightbox--open');
+    lb.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    var lb = document.getElementById('fp-lightbox');
+    if (!lb) return;
+    lb.classList.remove('fp-lightbox--open');
+    lb.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
   // ─── INIT ──────────────────────────────────────────────────────────────────
   async function init() {
     var root = document.getElementById('floorplan-widget');
     if (!root) return;
 
+    initLightbox();
     renderFilters();
     showLoading();
 
