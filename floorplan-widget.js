@@ -9,6 +9,7 @@
 
   // ─── STATE ─────────────────────────────────────────────────────────────────
   let allProducts = [];
+  let viewMode = 'photo'; // 'photo' | 'floorplan'
   let filterState = {
     size: 'all',
     style: 'any',
@@ -52,10 +53,19 @@
                 { namespace: "custom", key: "basement" }
                 { namespace: "custom", key: "home_style" }
                 { namespace: "custom", key: "project_name" }
+                { namespace: "custom", key: "main_floor_plan" }
               ]) {
                 namespace
                 key
                 value
+                reference {
+                  ... on MediaImage {
+                    image {
+                      url(transform: { maxWidth: 600 })
+                      altText
+                    }
+                  }
+                }
               }
             }
           }
@@ -101,9 +111,12 @@
   // ─── NORMALIZE ─────────────────────────────────────────────────────────────
   function normalizeProduct(node) {
     const mf = {};
+    const mfRef = {};
     (node.metafields || []).forEach(function (m) {
-      if (m) mf[m.key] = m.value;
+      if (m) { mf[m.key] = m.value; mfRef[m.key] = m.reference; }
     });
+    const fpRef = mfRef.main_floor_plan;
+    const fpImage = fpRef && fpRef.image ? fpRef.image.url : '';
 
     // home_style can arrive as a JSON array string or a plain string
     let style = mf.home_style || '';
@@ -131,6 +144,7 @@
       tags:        tags,
       image:       node.featuredImage ? node.featuredImage.url : '',
       imageAlt:    node.featuredImage ? (node.featuredImage.altText || node.title) : node.title,
+      fpImage:     fpImage,
       price:       price,
       sqft:        sqft,
       beds:        beds,
@@ -235,8 +249,9 @@
     if (p.baths) specs.push(fmtBaths(p.baths) + ' ba');
     if (p.sqft)  specs.push(fmtSqft(p.sqft));
 
-    var imgHtml = p.image
-      ? '<img class="fp-card__img" src="' + p.image + '" alt="' + escAttr(p.imageAlt) + '" loading="lazy">'
+    var activeSrc = (viewMode === 'floorplan' && p.fpImage) ? p.fpImage : p.image;
+    var imgHtml = activeSrc
+      ? '<img class="fp-card__img" src="' + activeSrc + '" alt="' + escAttr(p.imageAlt) + '" loading="lazy">'
       : '<div class="fp-card__img-placeholder"></div>';
 
     return '<a class="fp-card" href="' + SHOP_URL + '/products/' + p.handle + '" target="_blank" rel="noopener">'
