@@ -300,6 +300,16 @@
 
     grid.innerHTML = products.map(renderCard).join('');
     if (count) count.textContent = products.length + ' plan' + (products.length === 1 ? '' : 's');
+
+    // Attach direct listeners — delegation fails here because the button is inside
+    // an <a target="_blank"> and the browser follows the link before bubbling finishes
+    grid.querySelectorAll('[data-fp-open]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        openLightbox(btn.dataset.fpOpen);
+      });
+    });
   }
 
   // ─── RENDER FILTERS ────────────────────────────────────────────────────────
@@ -383,16 +393,8 @@
     var root = document.getElementById('floorplan-widget');
     if (!root) return;
 
-    // Chip clicks + lightbox open — delegated from root
+    // Chip clicks — delegated from root
     root.addEventListener('click', function (e) {
-      // Lightbox trigger
-      var fpBtn = e.target.closest('[data-fp-open]');
-      if (fpBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        openLightbox(fpBtn.dataset.fpOpen);
-        return;
-      }
       // Chip filter
       var btn = e.target.closest('.fp-chip');
       if (!btn) return;

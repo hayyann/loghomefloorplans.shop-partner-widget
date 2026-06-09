@@ -315,8 +315,6 @@
     var root = document.getElementById('floorplan-widget');
     if (!root) return;
     root.addEventListener('click', function (e) {
-      var fpBtn = e.target.closest('[data-fp-open]');
-      if (fpBtn) { e.preventDefault(); e.stopPropagation(); openLightbox(fpBtn.dataset.fpOpen); return; }
       var btn = e.target.closest('.fp-chip');
       if (!btn) return;
       var filter = btn.dataset.filter, val = btn.dataset.val;
@@ -368,6 +366,13 @@
     }
     grid.innerHTML = products.map(renderCard).join('');
     if (count) count.textContent = products.length + ' plan' + (products.length === 1 ? '' : 's');
+    grid.querySelectorAll('[data-fp-open]').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        openLightbox(btn.dataset.fpOpen);
+      });
+    });
   }
 
   function showLoading() {
