@@ -1,3 +1,6 @@
+<!-- Allow this page to be embedded in iframes from any domain -->
+<meta http-equiv="Content-Security-Policy" content="frame-ancestors *;">
+
 <style>
 /* ─── PARTNER CUSTOMIZATION ─────────────────────────────────────────────────
    Override these on your site to match your brand:
@@ -93,7 +96,7 @@
 
 <div id="floorplan-widget">
   <div class="fp-header">
-    <a href="https://loghomefloorplans.shop" target="_blank" rel="noopener">
+    <a id="fp-logo-link" href="https://loghomefloorplans.shop" target="_blank" rel="noopener">
       <img class="fp-logo" src="https://cdn.shopify.com/s/files/1/0987/2415/1660/files/Horizontal_Logo_10.png?v=1780363093" alt="Sierra Log &amp; Timber" loading="lazy">
     </a>
   </div>
@@ -109,6 +112,15 @@
   const COLLECTION_HANDLE = 'all';
   const PRODUCTS_PER_PAGE = 250;
   const ENDPOINT        = `${SHOP_URL}/api/${API_VERSION}/graphql.json`;
+
+  /* ── UTM pass-through: read params injected by the partner snippet ── */
+  const UTM_PARAMS = (function () {
+    var p = new URLSearchParams(window.location.search);
+    var keys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
+    var out = [];
+    keys.forEach(function (k) { if (p.get(k)) out.push(k + '=' + encodeURIComponent(p.get(k))); });
+    return out.length ? '?' + out.join('&') : '';
+  })();
 
   let allProducts = [];
   let viewMode = 'photo'; // 'photo' | 'floorplan'
@@ -254,7 +266,7 @@
     var fullLink = isFPMode
       ? '<button class="fp-card__full-link" type="button" data-fp-open="' + activeSrc + '">See full picture</button>'
       : '';
-    return '<div class="fp-card" data-card-href="' + SHOP_URL + '/products/' + p.handle + '">'
+    return '<div class="fp-card" data-card-href="' + SHOP_URL + '/products/' + p.handle + UTM_PARAMS + '">'
       + '<div class="fp-card__media">' + imgHtml
         + (styleLabel ? '<span class="fp-card__badge">' + esc(styleLabel) + '</span>' : '')
         + (p.isNew    ? '<span class="fp-card__new">New</span>' : '')
@@ -431,6 +443,10 @@
   async function init() {
     var root = document.getElementById('floorplan-widget');
     if (!root) return;
+    if (UTM_PARAMS) {
+      var logoLink = document.getElementById('fp-logo-link');
+      if (logoLink) logoLink.href = SHOP_URL + UTM_PARAMS;
+    }
     initLightbox();
     renderFilters();
     showLoading();

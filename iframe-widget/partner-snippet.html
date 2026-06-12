@@ -6,7 +6,7 @@
 
 <iframe
   id="fp-iframe"
-  src="https://hayyann.github.io/loghomefloorplans.shop-partner-widget/iframe-widget/iframe-embed.html"
+  src="https://partners.loghomefloorplans.shop/floorplan-widget.html"
   width="100%"
   frameborder="0"
   scrolling="auto"
@@ -17,6 +17,17 @@
 <script>
 (function () {
   var iframe = document.getElementById('fp-iframe');
+
+  /* ── UTM tracking: tag the iframe URL with this site's domain ── */
+  (function () {
+    var src = iframe.getAttribute('src');
+    var utm = [
+      'utm_source='   + encodeURIComponent(window.location.hostname),
+      'utm_medium=iframe-widget',
+      'utm_campaign=storefront-widget'
+    ].join('&');
+    iframe.setAttribute('src', src + '?' + utm);
+  })();
 
   /* ── Lightbox — appended to <body> so position:fixed hits the real viewport ── */
   var lb = document.createElement('div');
