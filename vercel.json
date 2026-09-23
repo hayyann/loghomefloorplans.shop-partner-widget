@@ -1,0 +1,11 @@
+{
+  "redirects": [
+    { "source": "/shade", "destination": "/shade/", "permanent": true }
+  ],
+  "rewrites": [
+    {
+      "source": "/shade/:path*",
+      "destination": "https://sierralogandtimber-com-shade-partne.vercel.app/:path*"
+    }
+  ]
+}
