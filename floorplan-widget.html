@@ -104,6 +104,10 @@
   <div id="fp-grid"></div>
 </div>
 
+<!-- Which partner site hosts this widget, and the plans opened from it:
+     Sierra Command's tracker (sierra-command, docs/PARTNER-EMBEDS.md). No
+     cookie, no storage, nothing about the visitor. -->
+<script src="https://sierra-command.vercel.app/api/frame?w=floor-plans" async></script>
 <script>
 (function () {
   const SHOP_URL        = 'https://loghomefloorplans.shop';
@@ -113,14 +117,31 @@
   const PRODUCTS_PER_PAGE = 250;
   const ENDPOINT        = `${SHOP_URL}/api/${API_VERSION}/graphql.json`;
 
-  /* ── UTM pass-through: read params injected by the partner snippet ── */
-  const UTM_PARAMS = (function () {
+  /* ── UTM: every link out names the partner's site ──────────────────────
+     The same scheme as Sierra's other partner widgets (sierra-command,
+     docs/PARTNER-EMBEDS.md): utm_source is the partner's site, utm_medium
+     partner-widget, utm_campaign sierra-floor-plans, utm_content what was
+     pressed (the plan, or the logo). The source is what an older snippet put
+     on this frame's address, then the browser's own account of who framed
+     us, so the two-line snippet (which adds nothing to the address) is
+     attributed too. */
+  const UTM_SOURCE = (function () {
     var p = new URLSearchParams(window.location.search);
-    var keys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term'];
-    var out = [];
-    keys.forEach(function (k) { if (p.get(k)) out.push(k + '=' + encodeURIComponent(p.get(k))); });
-    return out.length ? '?' + out.join('&') : '';
+    function host(u) { try { return new URL(u).hostname.replace(/^www\./, ''); } catch (e) { return ''; } }
+    if (p.get('utm_source')) return p.get('utm_source');
+    if (p.get('site')) return p.get('site');
+    if (window.parent !== window) {
+      var anc = window.location.ancestorOrigins;
+      if (anc && anc.length && host(anc[0])) return host(anc[0]);
+      if (document.referrer && host(document.referrer)) return host(document.referrer);
+    }
+    return 'partner-site';
   })();
+  function utm(content) {
+    return '?utm_source=' + encodeURIComponent(UTM_SOURCE) +
+      '&utm_medium=partner-widget&utm_campaign=sierra-floor-plans' +
+      '&utm_content=' + encodeURIComponent(content);
+  }
 
   let allProducts = [];
   let viewMode = 'photo'; // 'photo' | 'floorplan'
@@ -266,7 +287,7 @@
     var fullLink = isFPMode
       ? '<button class="fp-card__full-link" type="button" data-fp-open="' + activeSrc + '">See full picture</button>'
       : '';
-    return '<div class="fp-card" data-card-href="' + SHOP_URL + '/products/' + p.handle + UTM_PARAMS + '">'
+    return '<div class="fp-card" data-card-href="' + SHOP_URL + '/products/' + p.handle + utm(p.handle) + '" data-handle="' + p.handle + '">'
       + '<div class="fp-card__media">' + imgHtml
         + (styleLabel ? '<span class="fp-card__badge">' + esc(styleLabel) + '</span>' : '')
         + (p.isNew    ? '<span class="fp-card__new">New</span>' : '')
@@ -388,6 +409,8 @@
 
     grid.querySelectorAll('[data-card-href]').forEach(function (card) {
       card.addEventListener('click', function () {
+        /* Counted as a way out to the store (Sierra Command's tracker). */
+        if (window.sierraTrack) window.sierraTrack('click', card.dataset.handle || '');
         window.open(card.dataset.cardHref, '_blank', 'noopener');
       });
     });
@@ -419,7 +442,10 @@
 
   function openLightbox(src) {
     if (window.parent !== window) {
+      /* The older snippet's own script listens for fp-lightbox-*, the
+         two-line snippet's embed.js for sierra:lightbox; say both. */
       window.parent.postMessage({ type: 'fp-lightbox-open', src: src }, '*');
+      window.parent.postMessage({ type: 'sierra:lightbox', src: src }, '*');
       return;
     }
     var lb = document.getElementById('fp-lightbox'), img = document.getElementById('fp-lb-img');
@@ -432,6 +458,7 @@
   function closeLightbox() {
     if (window.parent !== window) {
       window.parent.postMessage({ type: 'fp-lightbox-close' }, '*');
+      window.parent.postMessage({ type: 'sierra:lightbox-close' }, '*');
       return;
     }
     var lb = document.getElementById('fp-lightbox');
@@ -443,10 +470,8 @@
   async function init() {
     var root = document.getElementById('floorplan-widget');
     if (!root) return;
-    if (UTM_PARAMS) {
-      var logoLink = document.getElementById('fp-logo-link');
-      if (logoLink) logoLink.href = SHOP_URL + UTM_PARAMS;
-    }
+    var logoLink = document.getElementById('fp-logo-link');
+    if (logoLink) logoLink.href = SHOP_URL + '/' + utm('logo');
     initLightbox();
     renderFilters();
     showLoading();
